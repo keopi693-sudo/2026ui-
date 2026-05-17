@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>우리아이 예방접종 케어</title>
+    <style>
+        body { font-family: 'Malgun Gothic', sans-serif; margin: 0; padding: 20px; background-color: #f0f4f8; color: #333; }
+        .container { max-width: 480px; margin: 0 auto; background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+        
+        /* 헤더 및 버튼 */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .btn { width: 100%; padding: 14px; margin: 8px 0; border: none; border-radius: 12px; font-size: 16px; cursor: pointer; background-color: #4A90E2; color: white; font-weight: bold; }
+        .btn-teal { background-color: #2D6A4F; }
+        .btn-text { background: none; border: none; color: #4A90E2; font-weight: bold; cursor: pointer; font-size: 15px; }
+        
+        /* 화면 제어 */
+        .screen { display: none; }
+        .screen.active { display: block; }
+        
+        /* 이미지 스타일 */
+        .main-img { width: 140px; height: auto; margin: 10px auto; display: block; }
+        .info-img { width: 100%; border-radius: 10px; margin-top: 10px; border: 1px solid #ddd; }
+        
+        /* 리스트 및 박스 */
+        .info-box { background-color: #f8f9fa; padding: 15px; border-radius: 12px; margin-bottom: 20px; font-size: 14px; border-left: 4px solid #4A90E2; }
+        .alert-box { background-color: #fff3cd; color: #856404; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: none; font-size: 13px; }
+        .list-box { border: 1px solid #eee; padding: 10px; border-radius: 10px; max-height: 450px; overflow-y: auto; background: #fff; }
+        
+        /* 질병 상세 스타일 */
+        .disease-item { border-bottom: 1px solid #eee; padding: 12px 0; }
+        .disease-name { font-weight: bold; color: #4A90E2; font-size: 16px; display: block; margin-bottom: 5px; }
+        .disease-content { font-size: 13.5px; line-height: 1.6; color: #555; white-space: pre-wrap; }
+        
+        /* 입력창 */
+        .input-group { margin-bottom: 15px; }
+        .input-group input { width: 100%; padding: 12px; box-sizing: border-box; border: 1px solid #ddd; border-radius: 8px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="homeScreen" class="screen active">
+        <div class="header">
+            <h2>예방접종 도우미</h2>
+            <button id="loginStatusBtn" class="btn-text" onclick="handleAuthHeaderBtn()">로그인</button>
+        </div>
+        
+        <img src="https://i.postimg.cc/wjYgxZzP/IMG-6970.png" alt="캐릭터" class="main-img">
+
+        <div id="userInfoBox" class="info-box">🔒 서비스를 이용하려면 로그인해주세요.</div>
+        <div id="smsAlertBox" class="alert-box"></div>
+        
+        <div id="ddaySection" style="display:none; margin-bottom: 20px;">
+            <span style="font-weight:bold;">📅 접종 디데이 현황</span>
+            <div id="ddayListBox" class="list-box" style="max-height: 150px; margin-top:10px;"></div>
+        </div>
+
+        <button class="btn" onclick="navigateTo('registerScreen')">우리 아이 등록</button>
+        <button class="btn" onclick="navigateTo('imageScreen')">국가 예방 접종 안내</button>
+        <button class="btn" onclick="navigateTo('diseaseScreen')">질병 정보 목록</button>
+        <button class="btn btn-teal" onclick="window.open('https://www.kdca.go.kr/kdca/index.do', '_blank')">질병관리청 바로가기</button>
+    </div>
+
+    <div id="loginScreen" class="screen">
+        <h3>로그인</h3>
+        <div class="input-group"><input type="text" id="loginPhone" placeholder="전화번호"></div>
+        <div class="input-group"><input type="password" id="loginPw" placeholder="비밀번호"></div>
+        <button class="btn" onclick="submitLogin()">로그인 완료</button>
+        <button class="btn-text" onclick="navigateTo('signupScreen')">회원가입</button>
+    </div>
+
+    <div id="signupScreen" class="screen">
+        <h3>회원가입</h3>
+        <div class="input-group"><input type="text" id="joinPhone" placeholder="전화번호"></div>
+        <div class="input-group"><input type="password" id="joinPw" placeholder="비밀번호"></div>
+        <div class="input-group"><input type="password" id="joinPwConfirm" placeholder="비밀번호 확인"></div>
+        <button class="btn" onclick="submitSignup()">가입 완료</button>
+    </div>
+
+    <div id="registerScreen" class="screen">
+        <h3>우리 아이 등록</h3>
+        <div class="input-group"><input type="text" id="childName" placeholder="아이 이름"></div>
+        <div class="input-group"><input type="date" id="childBirth"></div>
+        <button class="btn" onclick="submitChild()">등록하기</button>
+        <div id="calendarSection" style="display:none; margin-top:20px;">
+            <div id="calendarListBox" class="list-box"></div>
+        </div>
+        <button class="btn-text" onclick="navigateTo('homeScreen')">🏠 홈으로</button>
+    </div>
+
+    <div id="imageScreen" class="screen">
+        <h3>국가 예방 접종 안내</h3>
+        <img src="https://i.postimg.cc/D0tFXYXn/IMG-6968.jpg" alt="안내 이미지" class="info-img">
+        <button class="btn" onclick="navigateTo('homeScreen')" style="margin-top:15px;">닫기</button>
+    </div>
+
+    <div id="diseaseScreen" class="screen">
+        <h3>질병 정보 및 증상</h3>
+        <div id="diseaseListBox" class="list-box">
+            </div>
+        <button class="btn" onclick="navigateTo('homeScreen')" style="margin-top:15px;">홈으로 가기</button>
+    </div>
+</div>
+
+<script>
+    // 질병 상세 데이터
+    const diseaseData = [
+        {
+            name: "결핵",
+            content: "결핵균은 매우 천천히 증식하면서 우리 몸의 영양분을 소모시키고, 조직과 장기를 파괴합니다. 그렇기 때문에 결핵을 앓고 있는 환자의 상당수는 기운이 없고 입맛이 없어지며 체중이 감소하는 증상이 나타나기도 합니다. 또한 무력감이나 쉽게 피로를 느끼고 기운이 없거나 식욕이 떨어지는 것도 일반적인 증상입니다. 체중이 감소하고 미열이 있거나 잠잘 때 식은땀을 흘리기도 합니다."
+        },
+        {
+            name: "B형간염",
+            content: "B형 간염의 가장 흔한 증상은 피로감, 미열, 근육통, 오심, 구토, 식욕 부진, 복부의 불쾌감, 설사입니다. 대부분의 환자가 몸살 증상만 느끼거나 증상이 약하여 모르고 지내는 경우가 많습니다. 증상이 심한 경우 여러 가지 자각 증상이 나타나며, 소변이 콜라색처럼 진하게 변하고, 눈과 피부의 색이 노랗게 변하는 황달이 생기며, 가려움증이 동반될 수 있습니다."
+        },
+        {
+            name: "디프테리아",
+            content: "디프테리아의 증상은 다음과 같습니다.\n① 인두와 편도의 디프테리아: 전신 권태, 미열, 식욕 부진, 림프절 종창, 고열, 빠른 맥박\n② 비강의 디프테리아: 콧물의 점도 증가, 코피, 미열\n③ 후두의 디프테리아: 인두에서 후두로 퍼짐. 고열, 목이 쉰 소리, 기침, 호흡 곤란\n④ 눈, 귀, 생식기, 드물게는 피부까지 침범하기도 함"
+        },
+        {
+            name: "폴리오(소아마비)",
+            content: "소아마비의 증상은 침범 부위와 정도, 병의 진행 시기에 따라 다릅니다. 부전형은 거의 후유증을 남기지 않고 지나갑니다. 비마비형은 척수에 부분적으로 변형을 일으키지만, 근육이나 신경에는 직접적인 영향을 미치지 않습니다. 마비형은 감염 후 침범된 척수가 지배하는 근육이나 신경에 영구적인 후유증을 남깁니다. 소아마비의 잠복기는 1~2주 정도입니다. 발병 초기에는 발열, 두통, 등의 통증, 발한, 구토, 설사 등 여름 감기와 비슷한 증상을 보입니다."
+        },
+        {
+            name: "홍역",
+            content: "홍역 바이러스의 감염 후 잠복기는 약 10~14일 정도입니다. 홍역에 감염되면 고열, 전신 무력감, 비충혈, 재채기, 비염, 결막염, 기침, 눈부심 등의 전구 증상이 3~4일간 계속됩니다.\n\n① 발열 : 열이 계단식으로 올라서 5~6일째에 40.5°C까지 이르게 됩니다.\n② 발병 후 1일째 : 기침, 코감기, 결막염이 시작됩니다.\n③ 발병 후 2일째 : 구강 점막에 중심부가 흰색을 띄는 붉은 반점(코플릭 반점)이 나타납니다.\n④ 발병 후 3~5일째 : 피부 발진이 앞이마부터 얼굴, 몸통, 사지로 확산됩니다."
+        },
+        {
+            name: "수두",
+            content: "수두에 걸리면 2~3주의 잠복기를 거친 후 미열, 두통, 근육통이 발생하고, 유아는 이와 동시에, 성인은 1~2일 뒤부터 피부 발진이 나타납니다. 피부 발진은 오돌토돌 솟아나는 것부터 시작해 물집으로 변했다가 딱지(가피)가 됩니다. 이 과정은 빠르게 진행되며 모든 단계의 피부 발진이 동시에 발견되는 것이 특징입니다."
+        }
+    ];
+
+    // 기존 로직 유지
+    let userDb = {}; let loggedInUser = null; let registeredChild = null;
+    const vaccineDb = [
+        { d: '결핵(BCG)', m: 0 }, { d: 'B형간염', m: 0 }, { d: 'B형간염 2차', m: 1 },
+        { d: 'DTaP 1차', m: 2 }, { d: '폴리오 1차', m: 2 }, { d: '홍역(MMR) 1차', m: 12 }, { d: '수두', m: 12 }
+    ];
+
+    function navigateTo(id) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function handleAuthHeaderBtn() {
+        if (loggedInUser) { loggedInUser = null; registeredChild = null; updateHome(); alert('로그아웃되었습니다.'); } 
+        else navigateTo('loginScreen');
+    }
+
+    function submitSignup() {
+        const p = document.getElementById('joinPhone').value;
+        userDb[p] = document.getElementById('joinPw').value;
+        alert('회원가입 완료!'); navigateTo('loginScreen');
+    }
+
+    function submitLogin() {
+        const p = document.getElementById('loginPhone').value;
+        const pw = document.getElementById('loginPw').value;
+        if(userDb[p] === pw) { loggedInUser = p; updateHome(); navigateTo('homeScreen'); }
+        else alert('정보가 올바르지 않습니다.');
+    }
+
+    function submitChild() {
+        const n = document.getElementById('childName').value;
+        const b = document.getElementById('childBirth').value;
+        if(!n || !b) return alert('정보를 입력하세요.');
+        registeredChild = { name: n, birth: new Date(b) };
+        
+        const cal = document.getElementById('calendarListBox');
+        cal.innerHTML = '<strong>🗓️ 권장 접종 일정</strong>';
+        vaccineDb.forEach(v => {
+            let d = new Date(registeredChild.birth); d.setMonth(d.getMonth() + v.m);
+            cal.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #eee; font-size:13px;"><span>${v.d}</span><b>${d.toLocaleDateString()}</b></div>`;
+        });
+        document.getElementById('calendarSection').style.display = 'block';
+        updateHome();
+    }
+
+    function updateHome() {
+        const info = document.getElementById('userInfoBox');
+        const dsec = document.getElementById('ddaySection');
+        const alertBox = document.getElementById('smsAlertBox');
+        if(loggedInUser) {
+            document.getElementById('loginStatusBtn').innerText = '로그아웃';
+            if(registeredChild) {
+                info.innerHTML = `👶 <strong>${registeredChild.name}</strong> 아이가 등록되었습니다.`;
+                let dhtml = '';
+                const today = new Date(); today.setHours(0,0,0,0);
+                vaccineDb.forEach(v => {
+                    let target = new Date(registeredChild.birth); target.setMonth(target.getMonth() + v.m);
+                    let diff = Math.ceil((target - today) / (1000*60*60*24));
+                    if(diff >= 0) dhtml += `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f9f9f9;"><span>${v.d}</span><b style="color:#d9534f;">D-${diff==0?'Day':diff}</b></div>`;
+                });
+                document.getElementById('ddayListBox').innerHTML = dhtml; dsec.style.display = 'block';
+            } else { info.innerText = "아이 정보를 등록해 주세요."; dsec.style.display = 'none'; }
+        } else {
+            document.getElementById('loginStatusBtn').innerText = '로그인';
+            info.innerText = "🔒 서비스를 이용하려면 로그인해주세요."; dsec.style.display = 'none'; alertBox.style.display = 'none';
+        }
+    }
+
+    // 질병 정보 목록 주입
+    const dBox = document.getElementById('diseaseListBox');
+    diseaseData.forEach(item => {
+        dBox.innerHTML += `
+            <div class="disease-item">
+                <span class="disease-name">${item.name}</span>
+                <div class="disease-content">${item.content}</div>
+            </div>
+        `;
+    });
+</script>
+
+</body>
+</html>
